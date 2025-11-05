@@ -1,9 +1,9 @@
-// backend/controllers/swapController.js
+
 const mongoose = require('mongoose');
 const SwapRequest = require('../models/SwapRequest');
 const Event = require('../models/Event');
 
-// Create a new swap request: mySlotId (the requester's slot), theirSlotId (target slot)
+
 exports.createSwapRequest = async (req, res) => {
   try {
     const { mySlotId, theirSlotId } = req.body;
@@ -11,7 +11,7 @@ exports.createSwapRequest = async (req, res) => {
       return res.status(400).json({ message: 'Both mySlotId and theirSlotId are required' });
     }
 
-    // Load slots
+    
     const [mySlot, theirSlot] = await Promise.all([
       Event.findById(mySlotId),
       Event.findById(theirSlotId)
@@ -21,7 +21,7 @@ exports.createSwapRequest = async (req, res) => {
       return res.status(404).json({ message: 'One or both slots not found' });
     }
 
-    // Validate ownership & states
+   
     if (!mySlot.owner.equals(req.user._id)) {
       return res.status(403).json({ message: 'mySlot must belong to the authenticated user' });
     }
@@ -32,7 +32,7 @@ exports.createSwapRequest = async (req, res) => {
       return res.status(400).json({ message: 'Both slots must be SWAPPABLE' });
     }
 
-    // Use a transaction: create SwapRequest, mark both events SWAP_PENDING
+ 
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
@@ -71,7 +71,7 @@ exports.createSwapRequest = async (req, res) => {
   }
 };
 
-// Respond to a swap request: accept = true/false
+
 exports.respondToSwap = async (req, res) => {
   try {
     const { requestId } = req.params;
@@ -84,7 +84,7 @@ exports.respondToSwap = async (req, res) => {
     const swap = await SwapRequest.findById(requestId).populate('mySlot theirSlot fromUser toUser');
     if (!swap) return res.status(404).json({ message: 'Swap request not found' });
 
-    // Only the recipient (toUser) may respond
+   
     if (!swap.toUser._id.equals(req.user._id)) {
       return res.status(403).json({ message: 'Not authorized to respond to this request' });
     }
@@ -94,7 +94,7 @@ exports.respondToSwap = async (req, res) => {
     }
 
     if (!accept) {
-      // Reject: set swap.status = REJECTED and revert events -> SWAPPABLE
+     
       swap.status = 'REJECTED';
       await swap.save();
 
@@ -106,7 +106,7 @@ exports.respondToSwap = async (req, res) => {
       return res.json({ message: 'Swap rejected', swap });
     }
 
-    // Accept: transactionally swap owners and set statuses to BUSY
+    
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
@@ -115,17 +115,16 @@ exports.respondToSwap = async (req, res) => {
 
       if (!mySlot || !theirSlot) throw new Error('Slots not found during accept flow');
 
-      // Ensure they are still pending (not taken in another flow)
+      
       if (mySlot.status !== 'SWAP_PENDING' || theirSlot.status !== 'SWAP_PENDING') {
         throw new Error('One or both slots are not in SWAP_PENDING state');
       }
 
-      // Swap owners
       const tempOwner = mySlot.owner;
       mySlot.owner = theirSlot.owner;
       theirSlot.owner = tempOwner;
 
-      // Set statuses to BUSY
+    
       mySlot.status = 'BUSY';
       theirSlot.status = 'BUSY';
 
