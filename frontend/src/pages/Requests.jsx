@@ -31,11 +31,9 @@ export default function Requests() {
       await API.post(`/swap/response/${id}`, { accept });
 
       if (accept) {
-        // Move request to accepted
         const acceptedReq = incoming.find(r => r._id === id);
         setAccepted(prev => [...prev, { ...acceptedReq, status: 'ACCEPTED' }]);
       }
-      // Remove from incoming
       setIncoming(prev => prev.filter(r => r._id !== id));
     } catch (err) {
       console.error('Error responding:', err);
