@@ -17,7 +17,6 @@ export default function App() {
   const token = localStorage.getItem('token');
   const location = useLocation();
 
-  // hide navbar on login/signup
   const hideNavbar = ['/login', '/signup'].includes(location.pathname);
 
   return (
@@ -25,17 +24,12 @@ export default function App() {
       {!hideNavbar && <Navbar />}
       <div className={`flex-1 ${hideNavbar ? 'flex items-center justify-center' : 'container mx-auto p-4'}`}>
         <Routes>
-          {/* Default route */}
           <Route
             path="/"
             element={token ? <Navigate to="/dashboard" /> : <Navigate to="/signup" />}
           />
-
-          {/* Auth pages */}
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
-
-          {/* Protected pages */}
           <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />
           <Route path="/marketplace" element={<Protected><Marketplace /></Protected>} />
           <Route path="/requests" element={<Protected><Requests /></Protected>} />
