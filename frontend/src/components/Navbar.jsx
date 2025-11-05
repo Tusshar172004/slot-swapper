@@ -6,11 +6,9 @@ export default function Navbar() {
   const [user, setUser] = useState(getUser());
 
   useEffect(() => {
-    // Listen for login/logout changes
     const handleAuthChange = () => setUser(getUser());
     window.addEventListener('storage', handleAuthChange);
 
-    // Cleanup when Navbar unmounts
     return () => window.removeEventListener('storage', handleAuthChange);
   }, []);
 
