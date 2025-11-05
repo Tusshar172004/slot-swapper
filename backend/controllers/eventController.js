@@ -45,20 +45,20 @@ res.status(500).json({ message: err.message });
 
 exports.getSwappableSlots = async (req, res) => {
   try {
-    // Make sure user is authenticated
+   
     if (!req.user || !req.user._id) {
       return res.status(401).json({ message: 'Unauthorized user' });
     }
 
-    // Fetch all SWAPPABLE events from other users
+    
     const slots = await Event.find({
       status: 'SWAPPABLE',
-      owner: { $ne: req.user._id }, // exclude current user's own slots
+      owner: { $ne: req.user._id }, 
     })
       .populate('owner', 'name email')
       .sort({ startTime: 1 });
 
-    // Log result count to verify backend works
+    
     console.log(`Swappable slots found: ${slots.length}`);
 
     res.json(slots);
