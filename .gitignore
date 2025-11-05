@@ -1,0 +1,25 @@
+# node
+node_modules/
+npm-debug.log
+yarn-error.log
+dist/
+build/
+
+# env
+.env
+backend/.env
+frontend/.env
+.env.local
+.env.*.local
+
+# Vite cache
+node_modules/.vite/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
